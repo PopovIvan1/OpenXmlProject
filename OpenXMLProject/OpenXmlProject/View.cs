@@ -34,7 +34,7 @@ namespace OpenXmlProject
                             if (aCell.CellValue != null)
                             {
                                 aText = aCell.CellValue.Text;
-                                myRichTextBox.Text += aText;
+                                myRichTextBox.Text += aText + ' ';
                             }
                         }
                         myRichTextBox.Text += '\n';
