@@ -34,7 +34,19 @@ namespace OpenXmlProject
                             if (aCell.CellValue != null)
                             {
                                 aText = aCell.CellValue.Text;
+                                if (aCell.DataType != null)
+                                {
+                                    SharedStringTablePart aStringTable = aWorkbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
+                                    if (aStringTable != null)
+                                    {
+                                        aText = aStringTable.SharedStringTable.ElementAt(int.Parse(aText)).InnerText;
+                                    }
+                                }
                                 myRichTextBox.Text += aText + ' ';
+                            }
+                            else
+                            {
+                                myRichTextBox.Text += "              ";
                             }
                         }
                         myRichTextBox.Text += '\n';
