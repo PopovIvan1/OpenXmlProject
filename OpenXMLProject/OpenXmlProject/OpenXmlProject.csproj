@@ -84,5 +84,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XmlFileOpener\XmlFileOpener.csproj">
+      <Project>{3f352840-dd67-411f-9833-bcf45e4203a3}</Project>
+      <Name>XmlFileOpener</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

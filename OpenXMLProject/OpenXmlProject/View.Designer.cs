@@ -31,7 +31,7 @@
             this.myMenuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.myRichTextBox = new System.Windows.Forms.RichTextBox();
+            this.richTextBox = new System.Windows.Forms.RichTextBox();
             this.myMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -60,20 +60,20 @@
             this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.openToolStripMenuItem.Text = "Open";
             // 
-            // myRichTextBox
+            // richTextBox
             // 
-            this.myRichTextBox.Location = new System.Drawing.Point(0, 31);
-            this.myRichTextBox.Name = "myRichTextBox";
-            this.myRichTextBox.Size = new System.Drawing.Size(867, 429);
-            this.myRichTextBox.TabIndex = 1;
-            this.myRichTextBox.Text = "";
+            this.richTextBox.Location = new System.Drawing.Point(0, 31);
+            this.richTextBox.Name = "richTextBox";
+            this.richTextBox.Size = new System.Drawing.Size(867, 429);
+            this.richTextBox.TabIndex = 1;
+            this.richTextBox.Text = "";
             // 
             // View
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(879, 513);
-            this.Controls.Add(this.myRichTextBox);
+            this.Controls.Add(this.richTextBox);
             this.Controls.Add(this.myMenuStrip);
             this.MainMenuStrip = this.myMenuStrip;
             this.Name = "View";
@@ -89,7 +89,7 @@
         private System.Windows.Forms.MenuStrip myMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.RichTextBox myRichTextBox;
+        private System.Windows.Forms.RichTextBox richTextBox;
     }
 }
 

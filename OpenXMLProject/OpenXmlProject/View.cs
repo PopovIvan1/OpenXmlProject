@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
 using System.Windows.Forms;
+using XmlFileOpener;
 
 namespace OpenXmlProject
 {
@@ -14,44 +12,15 @@ namespace OpenXmlProject
             openToolStripMenuItem.Click += selectXmlFile;
         }
 
-        private void selectXmlFile(object theSender, EventArgs theArgs)
+        private void selectXmlFile(object sender, EventArgs args)
         {
-            myRichTextBox.Clear();
-            OpenFileDialog aFileDialog = new OpenFileDialog();
-            aFileDialog.Filter = "Excel Files|*.xls;*.xlsx;*.xlsm";
-            if (aFileDialog.ShowDialog() == DialogResult.OK)
+            richTextBox.Clear();
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "Excel Files|*.xls;*.xlsx;*.xlsm";
+            if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                using (SpreadsheetDocument aSpreadsheetDocument = SpreadsheetDocument.Open(aFileDialog.FileName, false))
-                {
-                    WorkbookPart aWorkbookPart = aSpreadsheetDocument.WorkbookPart;
-                    WorksheetPart aWorksheetPart = aWorkbookPart.WorksheetParts.First();
-                    SheetData sheetData = aWorksheetPart.Worksheet.Elements<SheetData>().First();
-                    string aText;
-                    foreach (Row aRow in sheetData.Elements<Row>())
-                    {
-                        foreach (Cell aCell in aRow.Elements<Cell>())
-                        {
-                            if (aCell.CellValue != null)
-                            {
-                                aText = aCell.CellValue.Text;
-                                if (aCell.DataType != null)
-                                {
-                                    SharedStringTablePart aStringTable = aWorkbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
-                                    if (aStringTable != null)
-                                    {
-                                        aText = aStringTable.SharedStringTable.ElementAt(int.Parse(aText)).InnerText;
-                                    }
-                                }
-                                myRichTextBox.Text += aText + ' ';
-                            }
-                            else
-                            {
-                                myRichTextBox.Text += "              ";
-                            }
-                        }
-                        myRichTextBox.Text += '\n';
-                    }
-                }
+                XmlFile xmlFile = new XmlFile(fileDialog.FileName);
+                richTextBox.Text = xmlFile.GetContent();
             }
         }
     }
