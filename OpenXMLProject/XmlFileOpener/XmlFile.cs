@@ -7,11 +7,17 @@ namespace XmlFileOpener
     public class XmlFile
     {
         private string content = "";
-        private string fileName = "";
+        private SpreadsheetDocument spreadsheetDocument;
+        private WorkbookPart workbookPart;
+        private WorksheetPart worksheetPart;
+        private SheetData sheetData;
 
         public XmlFile(string fileName)
         {
-            this.fileName = fileName;
+            spreadsheetDocument = SpreadsheetDocument.Open(fileName, false);
+            workbookPart = spreadsheetDocument.WorkbookPart;
+            worksheetPart = workbookPart.WorksheetParts.First();
+            sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
             setContent();
         }
 
@@ -22,39 +28,43 @@ namespace XmlFileOpener
 
         private void setContent()
         {
-            SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Open(fileName, false);
-            WorkbookPart workbookPart = spreadsheetDocument.WorkbookPart;
-            WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
-            SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
             foreach (Row row in sheetData.Elements<Row>())
             {
                 foreach (Cell cell in row.Elements<Cell>())
                 {
-                    content += getCellContent(cell, workbookPart);
+                    content += getCellContent(cell);
                 }
                 content += '\n';
             }
         }
 
-        private string getCellContent(Cell cell, WorkbookPart workbookPart)
+        private string getCellContent(Cell cell)
         {
-            string text;
             if (cell.CellValue != null)
             {
-                text = cell.CellValue.Text;
+                string text = cell.CellValue.Text;
                 if (cell.DataType != null)
                 {
-                    SharedStringTablePart stringTable = workbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
-                    if (stringTable != null)
-                    {
-                        text = stringTable.SharedStringTable.ElementAt(int.Parse(text)).InnerText;
-                    }
+                    text = getContentFromCellWithNotGeneralDataType(cell);
                 }
                 return text + ' ';
             }
             else
             {
                 return "              ";
+            }
+        }
+
+        private string getContentFromCellWithNotGeneralDataType(Cell cell)
+        {
+            SharedStringTablePart stringTable = workbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
+            if (stringTable != null)
+            {
+                return stringTable.SharedStringTable.ElementAt(int.Parse(cell.CellValue.Text)).InnerText;
+            }
+            else
+            {
+                return "";
             }
         }
     }
