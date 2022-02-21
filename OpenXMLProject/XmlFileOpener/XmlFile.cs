@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 
@@ -7,23 +8,25 @@ namespace XmlFileOpener
     public class XmlFile
     {
         private string content = "";
-        private SpreadsheetDocument spreadsheetDocument;
+
         private WorkbookPart workbookPart;
-        private WorksheetPart worksheetPart;
         private SheetData sheetData;
 
         public XmlFile(string fileName)
         {
-            spreadsheetDocument = SpreadsheetDocument.Open(fileName, false);
-            workbookPart = spreadsheetDocument.WorkbookPart;
-            worksheetPart = workbookPart.WorksheetParts.First();
-            sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
-            setContent();
+            initialize(fileName);
         }
 
-        public string GetContent()
+        private void initialize(string fileName)
         {
-            return content;
+            using (var spreadsheetDocument = SpreadsheetDocument.Open(fileName, false))
+            {
+                workbookPart = spreadsheetDocument.WorkbookPart;
+                WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
+                sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
+
+                setContent();
+            }
         }
 
         private void setContent()
@@ -58,14 +61,20 @@ namespace XmlFileOpener
         private string getContentFromCellWithNotGeneralDataType(Cell cell)
         {
             SharedStringTablePart stringTable = workbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
+
             if (stringTable != null)
             {
                 return stringTable.SharedStringTable.ElementAt(int.Parse(cell.CellValue.Text)).InnerText;
             }
             else
             {
-                return "";
+                throw new NullReferenceException();
             }
+        }
+
+        public string GetContent()
+        {
+            return content;
         }
     }
 }

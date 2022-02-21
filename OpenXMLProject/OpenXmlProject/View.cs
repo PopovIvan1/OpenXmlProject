@@ -15,8 +15,10 @@ namespace OpenXmlProject
         private void selectXmlFile(object sender, EventArgs args)
         {
             richTextBox.Clear();
+
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Filter = "Excel Files|*.xls;*.xlsx;*.xlsm";
+
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 XmlFile xmlFile = new XmlFile(fileDialog.FileName);
