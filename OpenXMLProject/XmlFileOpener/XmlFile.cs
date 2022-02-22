@@ -22,14 +22,24 @@ namespace XmlFileOpener
             using (var spreadsheetDocument = SpreadsheetDocument.Open(fileName, false))
             {
                 workbookPart = spreadsheetDocument.WorkbookPart;
-                WorksheetPart worksheetPart = workbookPart.WorksheetParts.First();
-                sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
 
                 setContent();
             }
         }
 
         private void setContent()
+        {
+            for (int i = workbookPart.WorksheetParts.Count() - 1; i > -1; i--)
+            {
+                WorksheetPart worksheetPart = workbookPart.WorksheetParts.ElementAt(i);
+                sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
+
+                setContentFromCurrentSeetData();
+                content += "\n\n";
+            }
+        }
+
+        private void setContentFromCurrentSeetData()
         {
             foreach (Row row in sheetData.Elements<Row>())
             {
