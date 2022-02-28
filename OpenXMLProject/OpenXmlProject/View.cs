@@ -21,8 +21,11 @@ namespace OpenXmlProject
 
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                XmlFile xmlFile = new XmlFile(fileDialog.FileName);
-                richTextBox.Text = xmlFile.GetContent();
+                XmlFileWriter xmlFileWriter = new XmlFileWriter(fileDialog.FileName);
+                xmlFileWriter.SetContent("Test content");
+
+                XmlFileReader xmlFileReader = new XmlFileReader(fileDialog.FileName);
+                richTextBox.Text = xmlFileReader.GetContent();
             }
         }
     }

@@ -5,14 +5,14 @@ using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace XmlFileOpener
 {
-    public class XmlFile
+    public class XmlFileReader
     {
         private string content = "";
 
         private WorkbookPart workbookPart;
         private SheetData sheetData;
 
-        public XmlFile(string fileName)
+        public XmlFileReader(string fileName)
         {
             initialize(fileName);
         }
