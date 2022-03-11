@@ -19,7 +19,8 @@ namespace XmlFileOpener
 
         private void initialize(string fileName)
         {
-            using (var spreadsheetDocument = SpreadsheetDocument.Open(fileName, false))
+            using (var spreadsheetDocument = SpreadsheetDocument
+                .Open(fileName, false))
             {
                 workbookPart = spreadsheetDocument.WorkbookPart;
 
@@ -29,10 +30,14 @@ namespace XmlFileOpener
 
         private void setContent()
         {
-            for (int i = workbookPart.WorksheetParts.Count() - 1; i > -1; i--)
+            int workbookPartCount = workbookPart.WorksheetParts.Count();
+            for (int i = workbookPartCount - 1; i > -1; i--)
             {
-                WorksheetPart worksheetPart = workbookPart.WorksheetParts.ElementAt(i);
-                sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
+                WorksheetPart worksheetPart = workbookPart
+                    .WorksheetParts?.ElementAt(i);
+
+                sheetData = worksheetPart.Worksheet
+                    .Elements<SheetData>()?.First();
 
                 setContentFromCurrentSeetData();
                 content += "\n\n";
@@ -70,11 +75,13 @@ namespace XmlFileOpener
 
         private string getContentFromCellWithNotGeneralDataType(Cell cell)
         {
-            SharedStringTablePart stringTable = workbookPart.GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
+            SharedStringTablePart stringTable = workbookPart
+                .GetPartsOfType<SharedStringTablePart>()?.FirstOrDefault();
 
             if (stringTable != null)
             {
-                return stringTable.SharedStringTable.ElementAt(int.Parse(cell.CellValue.Text)).InnerText;
+                return stringTable.SharedStringTable
+                    ?.ElementAt(int.Parse(cell.CellValue.Text)).InnerText;
             }
             else
             {

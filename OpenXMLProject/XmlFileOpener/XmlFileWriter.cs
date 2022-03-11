@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -20,23 +19,26 @@ namespace XmlFileOpener
 
         public void SetContent(string content)
         {
-            using (var spreadsheetDocument = SpreadsheetDocument.Open(fileName, true))
+            using (var spreadsheetDocument = SpreadsheetDocument
+                .Open(fileName, true))
             {
-                if (spreadsheetDocument.WorkbookPart.GetPartsOfType<SharedStringTablePart>().Count() > 0)
+                var workbookPart = spreadsheetDocument.WorkbookPart;
+                var stringTablePart = workbookPart
+                        .GetPartsOfType<SharedStringTablePart>();
+                if (stringTablePart.Count() > 0)
                 {
-                    shareStringPart = spreadsheetDocument.WorkbookPart.GetPartsOfType<SharedStringTablePart>().First();
+                    shareStringPart = stringTablePart?.First();
                 }
                 else
                 {
-                    shareStringPart = spreadsheetDocument.WorkbookPart.AddNewPart<SharedStringTablePart>();
+                    shareStringPart = workbookPart
+                        .AddNewPart<SharedStringTablePart>();
                 }
 
                 int index = insertSharedStringItem(content);
-
-                WorksheetPart worksheetPart = insertWorksheet(spreadsheetDocument.WorkbookPart);
+                WorksheetPart worksheetPart = insertWorksheet(workbookPart);
 
                 Cell cell = insertCellInWorksheet("A", 1, worksheetPart);
-
                 cell.CellValue = new CellValue(index.ToString());
                 cell.DataType = new EnumValue<CellValues>(CellValues.SharedString);
 
@@ -46,14 +48,16 @@ namespace XmlFileOpener
 
         private int insertSharedStringItem(string content)
         {
-            if (shareStringPart.SharedStringTable == null)
+            var sharedStringTable = shareStringPart.SharedStringTable;
+            if (sharedStringTable == null)
             {
-                shareStringPart.SharedStringTable = new SharedStringTable();
+                sharedStringTable = new SharedStringTable();
             }
 
             int index = 0;
 
-            foreach (SharedStringItem item in shareStringPart.SharedStringTable.Elements<SharedStringItem>())
+            foreach (SharedStringItem item in sharedStringTable
+                .Elements<SharedStringItem>())
             {
                 if (item.InnerText == content)
                 {
@@ -63,31 +67,38 @@ namespace XmlFileOpener
                 index++;
             }
 
-            shareStringPart.SharedStringTable.AppendChild(new SharedStringItem(new Text(content)));
-            shareStringPart.SharedStringTable.Save();
+            var sharedSrtingItem = new SharedStringItem(new Text(content));
+            sharedStringTable.AppendChild(sharedSrtingItem);
+            sharedStringTable.Save();
 
             return index;
         }
 
         private WorksheetPart insertWorksheet(WorkbookPart workbookPart)
         {
-            WorksheetPart newWorksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+            WorksheetPart newWorksheetPart = workbookPart
+                .AddNewPart<WorksheetPart>();
+
             newWorksheetPart.Worksheet = new Worksheet(new SheetData());
             newWorksheetPart.Worksheet.Save();
 
             Sheets sheets = workbookPart.Workbook.GetFirstChild<Sheets>();
-            string relationshipId = workbookPart.GetIdOfPart(newWorksheetPart);
+            string relationshipId = workbookPart
+                .GetIdOfPart(newWorksheetPart);
 
             uint sheetId = 1;
             if (sheets.Elements<Sheet>().Count() > 0)
             {
-                sheetId = sheets.Elements<Sheet>().Select(s => s.SheetId.Value).Max() + 1;
+                sheetId = sheets.Elements<Sheet>()
+                    .Select(sheet => sheet.SheetId.Value).Max() + 1;
             }
 
             string sheetName = "Sheet" + sheetId;
-
-            Sheet sheet = new Sheet() { Id = relationshipId, SheetId = sheetId, Name = sheetName };
-            sheets.Append(sheet);
+            Sheet newSheet = new Sheet() 
+            { 
+                Id = relationshipId, SheetId = sheetId, Name = sheetName 
+            };
+            sheets.Append(newSheet);
             workbookPart.Workbook.Save();
 
             return newWorksheetPart;
@@ -100,10 +111,12 @@ namespace XmlFileOpener
             string cellReference = columnName + rowIndex;
 
             Row row = getCurrentRowFromSheetData(rowIndex);
+            var cellsWithCurrentReference = row.Elements<Cell>()
+                .Where(cell => cell.CellReference.Value == cellReference);
 
-            if (row.Elements<Cell>().Where(c => c.CellReference.Value == columnName + rowIndex).Count() > 0)
+            if (cellsWithCurrentReference.Count() > 0)
             {
-                return row.Elements<Cell>().Where(c => c.CellReference.Value == cellReference).First();
+                return cellsWithCurrentReference.First();
             }
             else
             {
@@ -113,13 +126,20 @@ namespace XmlFileOpener
 
         private Row getCurrentRowFromSheetData(uint rowIndex)
         {
-            if (sheetData.Elements<Row>().Where(r => r.RowIndex == rowIndex).Count() != 0)
+            var rows = sheetData.Elements<Row>();
+            var rowsWithCurrentIndex = rows
+                .Where(row => row.RowIndex == rowIndex);
+
+            if (rowsWithCurrentIndex.Count() > 0)
             {
-                return sheetData.Elements<Row>().Where(r => r.RowIndex == rowIndex).First();
+                return rowsWithCurrentIndex.First();
             }
             else
             {
-                Row row = new Row() { RowIndex = rowIndex };
+                Row row = new Row() 
+                { 
+                    RowIndex = rowIndex 
+                };
                 sheetData.Append(row);
                 return row;
             }
@@ -132,7 +152,8 @@ namespace XmlFileOpener
             {
                 if (cell.CellReference.Value.Length == cellReference.Length)
                 {
-                    if (string.Compare(cell.CellReference.Value, cellReference, true) > 0)
+                    if (string.Compare(cell
+                        .CellReference.Value, cellReference, true) > 0)
                     {
                         refCell = cell;
                         break;
@@ -140,7 +161,11 @@ namespace XmlFileOpener
                 }
             }
 
-            Cell newCell = new Cell() { CellReference = cellReference };
+            Cell newCell = new Cell() 
+            { 
+                CellReference = cellReference 
+            };
+
             row.InsertBefore(newCell, refCell);
 
             worksheet.Save();
